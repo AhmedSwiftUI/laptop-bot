@@ -19,8 +19,8 @@ from reportlab.lib.units import mm
 
 # === إعدادات ===
 TOKEN = "7762927725:AAEapREwoJVXDCZdIs--FBKGKNpSYkok9dU"
-CSV_PATH = "/Users/ahmedalharbi/Downloads/Cleaned_Laptop_Data_Final_Version.csv"
-IMAGES_FOLDER = "/Users/ahmedalharbi/Desktop/Toplaps_bot_images"
+CSV_PATH = "Cleaned_Laptop_Data_Final_Version.csv"
+IMAGES_FOLDER = "Toplaps_bot_images"
 DONATION_LINK = "https://buymeacoffee.com/your_link"
 CONTACT_LINK = "https://t.me/your_username"
 ABOUT_TEXT = "💡 هذا التطبيق يساعدك في اختيار أفضل لابتوب حسب ميزانيتك واستخدامك.\nتم تطويره بواسطة أحمد ❤️"
