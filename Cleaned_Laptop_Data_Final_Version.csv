@@ -1,0 +1,71 @@
+id,Brand,Model,Processor,GPU,RAM,Storage,Display,Average Price (SAR),Purpose,CPU Score,GPU Score,Battery Life,purposeScoreGaming,purposeScoreWork,purposeScoreProgramming,purposeScoreDesign,totalScore
+1,Acer,Predator Triton Neo 16 PTN16-51-932N,Intel Core Ultra 9 185H,GeForce RTX 4070,32GB,1TB SSD,"16"" WQXGA",7152,Gaming,29512,19586,8,6.0,4.0,4.5,5.5,5.0
+2,Acer,Nitro 5,AMD Ryzen 9 5900HX,GeForce RTX 3080,16GB,1TB SSD,"15.6"" QHD 165Hz",7152,Gaming,22467,16457,5,4.7,2.3,2.7,3.5,3.3
+3,Acer,Swift Go 14,Intel Core Ultra 5,Integrated,16GB,512GB SSD,"14"" FHD",4500,Programming and AI,21987,150,15,2.0,4.3,3.2,2.0,2.2
+4,Acer,Aspire 5,Intel Core i5,Integrated,8GB,512GB SSD,14-inch Full HD,2625,Studying,14855,150,8,2.0,2.1,2.0,2.0,2.0
+5,Acer,Aspire Go 14,AMD Ryzen 3 7320,Integrated,8GB,128GB SSD,14-inch 1920x1200,1125,Studying,8614,150,14,2.0,2.8,2.0,2.0,2.0
+6,Apple,MacBook Pro 16-inch (M4 Pro),Apple M4 Pro,Integrated,16GB,512GB SSD,"16.2"" Liquid Retina XDR",9000,Designing,33137,600,22,2.0,6.5,4.8,2.0,3.4
+7,Apple,MacBook Pro M3,Apple M3,Integrated,16GB,512GB SSD,"14.2"" Liquid Retina XDR",8500,Designing,19239,600,18,2.0,4.7,3.0,2.0,2.3
+8,Apple,MacBook Air M3,Apple M3,Integrated,8GB,256GB SSD,13.6-inch Retina,4124,Studying,19239,600,18,2.0,4.4,2.6,2.0,2.0
+9,Apple,MacBook Air M1,Apple M1,Integrated,8GB,256GB SSD,13.3-inch Retina,3750,Studying,14154,600,15,2.0,3.4,2.0,2.0,2.0
+10,Apple,MacBook Air M3,Apple M3,Integrated,16GB,256GB SSD,13.3-inch Retina,4125,General,19239,600,18,2.0,4.7,3.0,2.0,2.3
+11,ASUS,ROG Zephyrus G14,AMD Ryzen 7 8845HS,GeForce RTX 4050,32GB,1TB SSD,"14"" 3K OLED 120Hz",7081,Gaming,28695,14418,6,4.8,3.6,4.3,4.6,4.3
+12,ASUS,ROG Zephyrus G16 GU605MZ,Intel Core Ultra 9 185H,GeForce RTX 4080,32GB,1TB SSD,"16"" 2.5K WQXGA",11052,Gaming,29512,25183,6,7.4,3.6,4.4,6.4,5.5
+13,ASUS,TUF Gaming F15,Intel Core i7 13620H,GeForce RTX 4050,16GB,1TB SSD,"15.6"" FHD 144Hz",3873,Gaming,24677,14418,12,4.3,3.9,3.3,3.1,3.7
+14,ASUS,TUF Gaming A15,AMD Ryzen 7 7735HS,GeForce RTX 4060,16GB,1TB SSD,"15.6"" FHD 144Hz",3873,Gaming,23734,17621,12,5.1,3.8,3.2,3.7,3.9
+15,Asus,Zenbook Pro Duo 15,Intel Core i9,GeForce RTX 3070,32GB,1TB SSD,"15.6"" 4K OLED + Secondary ScreenPad Plus",12000,Designing,15384,15403,3,4.5,2.0,2.7,4.7,3.5
+16,ASUS,ProArt Studiobook,AMD Ryzen 9 5900HX,GeForce RTX 3060,32GB,2TB SSD,"16"" 4K OLED",12500,Designing,24656,13311,8,4.4,3.6,4.0,4.4,4.1
+17,Asus,Zenbook S 14 (UX5406),Intel Core Ultra 7 258V,Integrated,32GB,512GB SSD,"14"" OLED",5625,Programming and AI,19597,150,14,2.0,4.5,3.7,2.1,2.8
+18,Asus,ROG Strix Scar 17 X3D,AMD Ryzen 9 7945HX3D,GeForce RTX 4090,32GB,1TB SSD,"17.3"" QHD",13500,Programming and AI,56802,27761,3,9.0,5.1,7.3,6.8,7.1
+19,Asus,Zenbook S 16,AMD Ryzen AI 9 365,Integrated,24GB,1TB SSD,"16"" 2880 x 1800 pixels",5250,Programming and AI,28971,150,14,2.0,4.9,4.3,2.0,3.0
+20,Asus,Zenbook 14 OLED,Intel Core i7 1260P,Integrated,16GB,512GB SSD,14-inch OLED,5249,Studying,16995,150,15,2.0,3.9,2.6,2.0,2.0
+21,Asus,Vivobook Go 15 OLED,AMD Ryzen 5 7520U,Integrated,8GB,256GB SSD,15.6-inch OLED,1875,Studying,9186,150,10,2.0,2.0,2.0,2.0,2.0
+22,Asus,Chromebook Plus CX34,Core i3-1215U,Integrated,8GB,128GB eMMC,14-inch,1612,Studying,10802,150,10,2.0,2.2,2.0,2.0,2.0
+23,Asus,ROG Zephyrus G14,AMD Ryzen 9 5900HS,GeForce RTX 3060,32GB,1TB SSD,14-inch,12750,Gaming,21530,13311,8,4.2,3.4,3.6,4.4,3.9
+24,Asus,ZenBook S 13 OLED,Intel Core i7-1355U,Integrated,32GB,1TB SSD,13.3-inch OLED,5250,General,14724,150,16,2.0,4.5,3.3,2.1,2.7
+25,Dell,G16 7630,Intel Core i9-13900HX,GeForce RTX 4060,16GB,1TB SSD,"16"" QHD+ 240Hz",5159,Gaming,43940,17621,4,5.8,3.7,5.1,3.7,4.6
+26,Dell,G15 5535,AMD Ryzen 7 7840HS,GeForce RTX 4060,16GB,512GB SSD,"15.6"" FHD 165Hz",3882,Gaming,28900,17621,6,5.3,3.0,3.5,3.7,3.9
+27,Dell,XPS 17 9720,Intel Core i7-12700H,GeForce RTX 3060,64GB,4TB SSD,"17"" UHD+",14850,Designing,26024,13311,6,5.0,4.5,5.7,7.2,5.6
+28,Dell,XPS 17 (2023),Intel Core i7-13700H,GeForce RTX 3060,32GB,1TB SSD,"17"" UHD+",10500,Designing,26897,13311,12,4.4,4.6,4.4,4.4,4.5
+29,Dell,XPS 13 (2024),Intel Core Ultra 7 256V,Integrated,16GB,512GB SSD,"13.4"" InfinityEdge",5250,Programming and AI,20215,150,20,2.0,5.1,3.2,2.0,2.5
+30,Dell,Inspiron 14 Plus 7441 (2024),Snapdragon X Plus,Integrated,16GB,512GB SSD,14-inch,3937,Studying,21868,150,10,2.0,3.3,2.9,2.0,2.0
+31,Dell,Latitude 7450,Intel Core Ultra 7 165U,Integrated,16GB,512GB SSD,14-inch,5250,Studying,17708,150,10,2.0,3.0,2.4,2.0,2.0
+32,Dell,Latitude 3140 2-in-1,Intel N100,Integrated,8GB,128GB SSD,11.6-inch HD Touchscreen,1500,Studying,5466,150,13,2.0,2.4,2.0,2.0,2.0
+33,Dell,XPS 13 9345,Intel Core Ultra 7 256V,Integrated,16GB,512GB SSD,13.4-inch Full HD+,5250,General,20215,150,14,2.0,3.9,2.9,2.0,2.1
+34,Dell,Inspiron 14 (5441),Snapdragon X Plus,Integrated,16GB,512GB SSD,14-inch Full HD,2437,General,21868,150,15,2.0,4.3,3.2,2.0,2.2
+35,GIGABYTE,AORUS 16X ASG,Intel Core i9 14900HX,GeForce RTX 4070,32GB,2TB SSD,"16"" WQXGA 165Hz",7081,Gaming,45640,29512,7,9.0,5.0,6.3,7.1,6.9
+36,HP,Victus 16-s1023dx,AMD Ryzen 7 8845HS,GeForce RTX 4070,16GB,512GB SSD,"16.1"" FHD 144Hz",5108,Gaming,28704,29512,10,8.1,3.8,3.7,5.7,5.3
+37,HP,Victus 15-FA1082WM,Intel Core i5-13420H,GeForce RTX 4050,16GB,512GB SSD,"15.6"" FHD 144Hz",2621,Gaming,18250,14418,2,4.1,2.0,2.1,3.1,2.7
+38,HP,Omen 16t-wf000,Intel Core i7-14700HX,GeForce RTX 4070,16GB,1TB SSD,"16.1"" FHD 165Hz",6029,Gaming,37640,29512,7,8.4,3.8,4.5,5.7,5.6
+39,HP,Omen 16,Intel Core i7-12700H,GeForce RTX 3070,32GB,1TB SSD,"16.1"" FHD 144Hz",6029,Gaming,26024,15403,7,4.9,3.6,4.1,4.7,4.3
+40,HP,ZBook Fury 17 G8,Intel Core i9-11950H,NVIDIA Quadro RTX A5000,64GB,2TB SSD,"17.3"" DreamColor",19999,Designing,21049,16161,7,5.5,4.3,5.2,7.7,5.7
+41,HP,Omen 17,Intel Core i9 13900HX,GeForce RTX 3080,32GB,1TB SSD,"17.3"" QHD",11250,Programming and AI,43940,16457,2,5.8,3.9,5.8,4.9,5.1
+42,HP,Envy x360 2-in-1,Intel Core i5-1335U,Integrated,8GB,512GB SSD,14-inch Touchscreen,2362,Studying,14613,150,13,2.0,3.0,2.0,2.0,2.0
+43,HP,Envy x360 15.6-inch 2-in-1,Intel Core i5-1335U,Integrated,8GB,512GB SSD,15.6-inch Full HD Touchscreen,2625,Studying,14613,150,13,2.0,3.0,2.0,2.0,2.0
+44,HP,Spectre x360 14,Intel Core i7-1165G7,Integrated,16GB,512GB SSD,13.5-inch Touchscreen,5625,General,10112,150,11,2.0,2.6,2.0,2.0,2.0
+45,Huawei,Matebook 14,Intel Core i5-1135G7,Integrated,16GB,512GB SSD,14-inch,4500,Studying,9702,150,10,2.0,2.4,2.0,2.0,2.0
+46,Lenovo,Legion Pro 5i Gen 9,Intel Core i9-14900HX,GeForce RTX 4080,32GB,1TB SSD,"16"" WQXGA 165Hz",7081,Gaming,45640,25183,3,8.0,4.2,6.1,6.4,6.2
+47,Lenovo,Legion 5 16IRX9,Intel Core i9-14900HX,GeForce RTX 4060,32GB,1TB SSD,"16"" WQXGA 165Hz",5508,Gaming,45640,17621,6,6.2,4.8,6.2,5.1,5.6
+48,Lenovo,Legion 7i,Intel Core i9-11980HK,GeForce RTX 3080,32GB,1TB SSD,"16"" WQXGA",8500,Designing,22619,16457,3,5.0,2.5,3.5,4.9,4.0
+49,Lenovo,ThinkPad X1 Yoga Gen 6,Intel Core i7-1165G7,Integrated,16GB,512GB SSD,"14"" 4K UHD",7000,Designing,10112,150,14,2.0,3.2,2.0,2.0,2.0
+50,Lenovo,ThinkPad X1 Carbon Gen 10,Intel Core i7-1255U,Integrated,32GB,1TB SSD,"14"" FHD",8500,Programming and AI,13557,150,12,2.0,3.6,2.9,2.1,2.4
+51,Lenovo,Legion Pro 7i Gen 8,Intel Core i9-13900HX,GeForce RTX 4080,32GB,1TB SSD,"16"" WQXGA",9000,Programming and AI,43940,25183,5,7.9,4.5,6.0,6.4,6.2
+52,Lenovo,ThinkPad P1 Gen 7,Intel Core Ultra 9 185H,GeForce RTX 4070,64GB,8TB SSD,"16""",12000,Programming and AI,29477,29512,17,9.0,7.0,6.7,10.0,8.2
+53,Lenovo,IdeaPad Duet 5 Chromebook,Qualcomm Snapdragon 7c,Integrated,8GB,128GB eMMC,13.3-inch OLED,1875,Studying,3423,150,13,2.0,2.2,2.0,2.0,2.0
+54,Lenovo,ThinkPad T14s Gen 6,AMD Ryzen 7 Pro 360,Integrated,32GB,1TB SSD,14-inch,6750,Studying,21801,150,13,2.0,4.4,3.9,2.1,2.9
+55,Lenovo,Flex 5i Chromebook Plus,Intel Core i3-1315U,Integrated,8GB,128GB eMMC,13.3-inch Full HD Touchscreen,1870,Studying,12009,150,10,2.0,2.2,2.0,2.0,2.0
+56,Lenovo,Yoga 9i,Core i7-1185G7,Integrated,16GB,512GB SSD,14-inch Touchscreen,8600,General,10351,150,11,2.0,2.6,2.0,2.0,2.0
+57,Lenovo,Yoga Slim 7x,Core i7-1185G7,Integrated,16GB,512GB SSD,14-inch Full HD,5749,General,10351,150,14,2.0,3.2,2.0,2.0,2.0
+58,Microsoft,Surface Laptop Studio,Core i7-11370H,GeForce RTX 3050 Ti,32GB,1TB SSD,"14.4"" PixelSense Flow",10000,Designing,11663,10128,18,3.1,4.7,3.0,3.8,3.7
+59,Microsoft,Surface Laptop (7th Generation),Snapdragon X Elite,Integrated,16GB,512GB SSD,"15"" PixelSense",6750,Programming and AI,23252,150,20,2.0,5.4,3.6,2.0,2.6
+60,Microsoft,Surface Pro (11th Generation),Snapdragon X Elite,Integrated,64GB,1TB SSD,"13""",6075,Programming and AI,23252,150,14,2.0,5.9,5.8,5.0,4.6
+61,Microsoft,Surface Laptop 7,Intel Core i7-7660U,Integrated,16GB,512GB SSD,13.5-inch,8000,Studying,4086,150,14,2.0,2.7,2.0,2.0,2.0
+62,Microsoft,Surface Laptop 7th Edition,Intel Core Ultra 7 165H,Integrated,16GB,512GB SSD,13.5-inch PixelSense,6750,General,26376,150,18,2.0,5.2,3.8,2.0,2.7
+63,MSI,Cyborg 15,Intel Core i7-13620H,GeForce RTX 4060,16GB,512GB SSD,"15.6"" FHD 144Hz",3930,Gaming,24678,17621,5,5.1,2.5,3.0,3.7,3.6
+64,MSI,Thin 15 B13UC,Intel Core i5-13420H,GeForce RTX 3050,16GB,512GB SSD,"15.6"" FHD 144Hz",2398,Gaming,18250,10311,5,3.1,2.0,2.2,2.4,2.5
+65,MSI,Thin A15 B7UCX-249XAE,AMD Ryzen 5 7535HS,GeForce RTX 2050,8GB,512GB SSD,"15.6"" FHD 144Hz",4200,Gaming,18212,7737,5,2.4,2.0,2.0,2.0,2.0
+66,MSI,Creator Z16P,Intel Core i7-12700H,GeForce RTX 3070,32GB,1TB SSD,"16"" QHD+",10875,Designing,26024,15403,5,4.9,3.2,4.0,4.7,4.2
+67,MSI,Stealth 16 AI Studio A1V,Intel Core Ultra 9 185H,GeForce RTX 4070,32GB,1TB SSD,"16"" 4K UHD",12000,Programming and AI,29477,29512,3,8.4,3.0,4.3,7.1,5.7
+68,Samsung,Galaxy Book 3 Ultra,Intel Core i9-13900H,GeForce RTX 4070,32GB,1TB SSD,"16"" AMOLED",11000,Designing,28502,29512,17,8.4,5.7,4.9,7.1,6.5
+69,Samsung,Galaxy Book4 Pro 360,Intel Core Ultra 7 155H,Integrated,16GB,1TB SSD,16-inch,8046,Studying,25015,150,21,2.0,5.7,3.8,2.0,2.8
+70,Samsung,Galaxy Book4 Edge,Qualcomm Snapdragon X Elite - X1E-78-100,Integrated,16GB,512GB SSD,15.6-inch Full HD,5062,Studying,23252,150,22,2.0,5.8,3.7,2.0,2.8
