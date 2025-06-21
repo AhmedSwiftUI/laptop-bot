@@ -18,7 +18,7 @@ from reportlab.lib import colors
 from reportlab.lib.units import mm
 
 # === إعدادات ===
-TOKEN = "7762927725:AAEapREwoJVXDCZdIs--FBKGKNpSYkok9dU"
+TOKEN = os.environ.get("7762927725:AAEapREwoJVXDCZdIs--FBKGKNpSYkok9dU", "")
 CSV_PATH = "Cleaned_Laptop_Data_Final_Version.csv"
 IMAGES_FOLDER = "Toplaps_bot_images"
 DONATION_LINK = "https://buymeacoffee.com/your_link"
@@ -58,19 +58,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("👋 أهلًا بك في مساعد اختيار اللابتوب!\n👇 اختر غرض استخدامك:", reply_markup=reply_main_menu())
     await update.message.reply_text("🎯 اختر أحد الأغراض:", reply_markup=purpose_keyboard())
 
+
 async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     cid = query.message.chat_id
     data = query.data
-
-    if data == "restart":
-        return await start(update, context)
-    elif data == "clear":
-        await clear_messages(context, cid)
-        return await query.message.reply_text("🧹 تم مسح المحادثة.", reply_markup=reply_main_menu())
-    elif data == "about":
-        return await query.message.reply_text(ABOUT_TEXT, reply_markup=reply_main_menu())
 
     if data in purposes:
         user_state[cid] = {"purpose": data}
@@ -127,6 +120,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(f"✅ تم العثور على {len(results)} لابتوب يناسب استخدامك وميزانيتك.")
 
+
     for _, row in results.head(5).iterrows():
         id_str = str(row['id'])
         caption = format_laptop_info(row)
@@ -161,12 +155,12 @@ def format_laptop_info(r):
             f"📺 الشاشة: {r['Display']}\n"
             f"🔋 البطارية: {r['Battery Life']} ساعة")
 
-
 def get_images(laptop_id):
     folder = os.path.join(IMAGES_FOLDER, laptop_id)
     if not os.path.isdir(folder):
         return []
     return [os.path.join(folder, f) for f in sorted(os.listdir(folder)) if f.lower().endswith((".jpg", ".jpeg", ".png"))]
+
 
 def generate_pdf(results_df):
     temp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
@@ -255,7 +249,7 @@ def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(handle_button))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    app.post_init = lambda app: set_bot_commands(app)
+    app.post_init = lambda app: app.create_task(set_bot_commands(app))
     print("✅ البوت يعمل الآن...")
     app.run_polling()
 
