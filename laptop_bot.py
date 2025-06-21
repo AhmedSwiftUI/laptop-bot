@@ -18,7 +18,7 @@ from reportlab.lib import colors
 from reportlab.lib.units import mm
 
 # === إعدادات ===
-TOKEN = os.environ.get("7762927725:AAEapREwoJVXDCZdIs--FBKGKNpSYkok9dU", "")
+TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 CSV_PATH = "Cleaned_Laptop_Data_Final_Version.csv"
 IMAGES_FOLDER = "Toplaps_bot_images"
 DONATION_LINK = "https://buymeacoffee.com/your_link"
