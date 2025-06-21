@@ -3,13 +3,14 @@ import re
 import logging
 import pandas as pd
 import tempfile
+import asyncio
 from telegram import (
     Update, InlineKeyboardButton, InlineKeyboardMarkup,
     InputMediaPhoto, ReplyKeyboardMarkup, KeyboardButton, BotCommand
 )
 from telegram.ext import (
     ApplicationBuilder, CommandHandler, MessageHandler,
-    CallbackQueryHandler, ContextTypes, filters
+    CallbackQueryHandler, ContextTypes, filters, Application
 )
 from reportlab.lib.pagesizes import A4
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
@@ -17,7 +18,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import colors
 from reportlab.lib.units import mm
 
-# === إعدادات ===
+# === Settings ===
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 CSV_PATH = "Cleaned_Laptop_Data_Final_Version.csv"
 IMAGES_FOLDER = "Toplaps_bot_images"
@@ -38,10 +39,11 @@ purposes = {
     "📚 الدراسة": "Studying"
 }
 
-# تحميل البيانات
+# Load CSV
 df = pd.read_csv(CSV_PATH)
 df["Average Price (SAR)"] = pd.to_numeric(df["Average Price (SAR)"], errors="coerce")
 df = df.dropna(subset=["Average Price (SAR)"])
+
 
 def reply_main_menu():
     return ReplyKeyboardMarkup([
@@ -49,8 +51,10 @@ def reply_main_menu():
         [KeyboardButton("💰 دعم المشروع"), KeyboardButton("ℹ️ عن التطبيق"), KeyboardButton("📞 تواصل معي")]
     ], resize_keyboard=True)
 
+
 def purpose_keyboard():
     return InlineKeyboardMarkup([[InlineKeyboardButton(k, callback_data=k)] for k in purposes])
+
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     cid = update.effective_chat.id
@@ -68,6 +72,7 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if data in purposes:
         user_state[cid] = {"purpose": data}
         await query.message.reply_text("💰 كم ميزانيتك؟ (بالريال السعودي)", reply_markup=reply_main_menu())
+
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.message:
@@ -95,7 +100,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if cid not in user_state or "purpose" not in user_state[cid]:
         return await update.message.reply_text("❗ اختر الغرض أولًا عبر /start", reply_markup=reply_main_menu())
 
-    # تحويل الأرقام العربية لفهم الأرقام
     arabic_digits = str.maketrans('٠١٢٣٤٥٦٧٨٩', '0123456789')
     clean_text = re.sub(r'[^\d]', '', text.translate(arabic_digits))
 
@@ -119,7 +123,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     results = results.sort_values(by="adjustedScore", ascending=False)
 
     await update.message.reply_text(f"✅ تم العثور على {len(results)} لابتوب يناسب استخدامك وميزانيتك.")
-
 
     for _, row in results.head(5).iterrows():
         id_str = str(row['id'])
@@ -145,6 +148,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         msg = await update.message.reply_document(document=f, filename="Laptop_Comparison.pdf", caption="📄 مقارنة بين أفضل اللابتوبات")
         track_messages(cid, msg)
 
+
 def format_laptop_info(r):
     return (f"💻 {r['Brand']} {r['Model']}\n"
             f"💰 السعر: {r['Average Price (SAR)']} ريال\n"
@@ -154,6 +158,7 @@ def format_laptop_info(r):
             f"🗃️ التخزين: {r['Storage']}\n"
             f"📺 الشاشة: {r['Display']}\n"
             f"🔋 البطارية: {r['Battery Life']} ساعة")
+
 
 def get_images(laptop_id):
     folder = os.path.join(IMAGES_FOLDER, laptop_id)
@@ -218,12 +223,14 @@ def generate_pdf(results_df):
     doc.build(elements)
     return temp.name
 
+
 def track_messages(cid, *msgs):
     if cid not in user_bot_messages:
         user_bot_messages[cid] = []
     for m in msgs:
         if hasattr(m, "message_id"):
             user_bot_messages[cid].append(m.message_id)
+
 
 async def clear_messages(context, cid):
     if cid in user_bot_messages:
@@ -234,7 +241,8 @@ async def clear_messages(context, cid):
                 continue
         user_bot_messages[cid] = []
 
-async def set_bot_commands(application):
+
+async def set_bot_commands(application: Application):
     commands = [
         BotCommand("start", "بدء البوت"),
         BotCommand("about", "عن التطبيق"),
@@ -244,14 +252,19 @@ async def set_bot_commands(application):
     ]
     await application.bot.set_my_commands(commands)
 
+
+async def on_startup(app: Application):
+    await set_bot_commands(app)
+
+
 def main():
-    app = ApplicationBuilder().token(TOKEN).build()
+    app = ApplicationBuilder().token(TOKEN).post_init(on_startup).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(handle_button))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    app.post_init = lambda app: app.create_task(set_bot_commands(app))
     print("✅ البوت يعمل الآن...")
     app.run_polling()
+
 
 if __name__ == "__main__":
     main()
