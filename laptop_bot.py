@@ -258,13 +258,16 @@ async def on_startup(app: Application):
 
 
 def main():
-    app = ApplicationBuilder().token(TOKEN).post_init(on_startup).build()
+    app = ApplicationBuilder().token(TOKEN).build()
+
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(handle_button))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+
     print("✅ البوت يعمل الآن...")
+
+    # Call the startup function manually before polling
+    asyncio.run(on_startup(app))
+
     app.run_polling()
 
-
-if __name__ == "__main__":
-    main()
