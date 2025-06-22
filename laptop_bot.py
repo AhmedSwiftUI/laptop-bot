@@ -266,7 +266,11 @@ def main():
 
     print("✅ البوت يعمل الآن باستخدام Webhook...")
 
-    app.post_init = on_startup  # لأوامر البوت
+    async def full_startup(app):
+        await on_startup(app)
+        await register_webhook(app)
+
+    app.post_init = full_startup
 
     port = int(os.environ.get("PORT", 8080))
     webhook_url = f"https://laptop-bot-production.up.railway.app/{TOKEN}"
@@ -277,6 +281,7 @@ def main():
         url_path=TOKEN,
         webhook_url=webhook_url
     )
+
 
 
 
