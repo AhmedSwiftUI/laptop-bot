@@ -266,8 +266,7 @@ def main():
 
     print("✅ البوت يعمل الآن...")
 
-    # Call the startup function manually before polling
-    asyncio.run(on_startup(app))
-
+    app.post_init = on_startup  # Proper way to run startup setup
     app.run_polling()
+
 
