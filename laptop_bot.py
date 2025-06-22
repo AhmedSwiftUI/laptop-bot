@@ -264,9 +264,19 @@ def main():
     app.add_handler(CallbackQueryHandler(handle_button))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    print("✅ البوت يعمل الآن...")
+    print("✅ البوت يعمل الآن باستخدام Webhook...")
 
-    app.post_init = on_startup  # Proper way to run startup setup
-    app.run_polling()
+    app.post_init = on_startup  # لأوامر البوت
+
+    port = int(os.environ.get("PORT", 8080))
+    webhook_url = f"https://laptop-bot-production.up.railway.app/{TOKEN}"
+
+    app.run_webhook(
+        listen="0.0.0.0",
+        port=port,
+        url_path=TOKEN,
+        webhook_url=webhook_url
+    )
+
 
 
