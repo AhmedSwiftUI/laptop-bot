@@ -2,14 +2,13 @@ import os
 import logging
 import pandas as pd
 import tempfile
-from telegram import (
-    Update, InlineKeyboardButton, InlineKeyboardMarkup,
-    InputMediaPhoto, BotCommand
-)
+
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto, BotCommand
 from telegram.ext import (
     ApplicationBuilder, CommandHandler, MessageHandler,
     CallbackQueryHandler, ContextTypes, filters
 )
+
 from reportlab.lib.pagesizes import A4
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
@@ -29,8 +28,6 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 user_state = {}
-user_bot_messages = {}
-
 purposes = {
     "🎮 الألعاب": "Gaming",
     "🎨 التصميم": "Design",
@@ -42,7 +39,6 @@ df = pd.read_csv(CSV_PATH)
 df["Average Price (SAR)"] = pd.to_numeric(df["Average Price (SAR)"], errors="coerce")
 df = df.dropna(subset=["Average Price (SAR)"])
 
-# الكيبورد السفلي الثابت
 def main_inline_keyboard():
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("🔁 ابدأ من جديد", callback_data="start")],
@@ -258,11 +254,8 @@ def main():
         await set_bot_commands(app)
 
     app.post_init = on_startup
-
     print("✅ البوت يعمل الآن...")
     app.run_polling()
-
-
 
 if __name__ == "__main__":
     main()
