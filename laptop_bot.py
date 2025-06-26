@@ -247,11 +247,15 @@ async def set_bot_commands(application):
 def main():
     app = ApplicationBuilder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("about", about))
+    app.add_handler(CommandHandler("contact", contact))
+    app.add_handler(CommandHandler("donate", donate))
     app.add_handler(CallbackQueryHandler(handle_button))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    app.post_init = lambda app: app.create_task(set_bot_commands(app))
+    app.post_init = lambda app: set_bot_commands(app)
     print("✅ البوت يعمل الآن...")
     app.run_polling()
+
 
 if __name__ == "__main__":
     main()
