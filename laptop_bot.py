@@ -1,16 +1,14 @@
 import os
-import re
 import logging
 import pandas as pd
 import tempfile
-import asyncio
 from telegram import (
     Update, InlineKeyboardButton, InlineKeyboardMarkup,
-    InputMediaPhoto, ReplyKeyboardMarkup, KeyboardButton, BotCommand
+    InputMediaPhoto, BotCommand
 )
 from telegram.ext import (
     ApplicationBuilder, CommandHandler, MessageHandler,
-    CallbackQueryHandler, ContextTypes, filters, Application
+    CallbackQueryHandler, ContextTypes, filters
 )
 from reportlab.lib.pagesizes import A4
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
@@ -18,12 +16,13 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import colors
 from reportlab.lib.units import mm
 
-# === Settings ===
-TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+# إعدادات
+TOKEN = os.getenv("BOT_TOKEN")
 CSV_PATH = "Cleaned_Laptop_Data_Final_Version.csv"
 IMAGES_FOLDER = "Toplaps_bot_images"
+
 DONATION_LINK = "https://buymeacoffee.com/your_link"
-CONTACT_LINK = "https://t.me/your_username"
+CONTACT_LINK = "https://t.me/Ahmed0ksa"
 ABOUT_TEXT = "💡 هذا التطبيق يساعدك في اختيار أفضل لابتوب حسب ميزانيتك واستخدامك.\nتم تطويره بواسطة أحمد ❤️"
 
 logging.basicConfig(level=logging.INFO)
@@ -39,29 +38,44 @@ purposes = {
     "📚 الدراسة": "Studying"
 }
 
-# Load CSV
 df = pd.read_csv(CSV_PATH)
 df["Average Price (SAR)"] = pd.to_numeric(df["Average Price (SAR)"], errors="coerce")
 df = df.dropna(subset=["Average Price (SAR)"])
 
-
-def reply_main_menu():
-    return ReplyKeyboardMarkup([
-        [KeyboardButton("🔁 ابدأ من جديد"), KeyboardButton("🧹 مسح المحادثة")],
-        [KeyboardButton("💰 دعم المشروع"), KeyboardButton("ℹ️ عن التطبيق"), KeyboardButton("📞 تواصل معي")]
-    ], resize_keyboard=True)
-
+# الكيبورد السفلي الثابت
+def main_inline_keyboard():
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("🔁 ابدأ من جديد", callback_data="start")],
+        [
+            InlineKeyboardButton("💰 دعم المشروع", callback_data="donate"),
+            InlineKeyboardButton("ⓘ عن توبلاب", callback_data="about"),
+            InlineKeyboardButton("💌 تواصل معي", callback_data="contact")
+        ]
+    ])
 
 def purpose_keyboard():
     return InlineKeyboardMarkup([[InlineKeyboardButton(k, callback_data=k)] for k in purposes])
 
-
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     cid = update.effective_chat.id
     user_state.pop(cid, None)
-    await update.message.reply_text("👋 أهلًا بك في مساعد اختيار اللابتوب!\n👇 اختر غرض استخدامك:", reply_markup=reply_main_menu())
-    await update.message.reply_text("🎯 اختر أحد الأغراض:", reply_markup=purpose_keyboard())
+    send = update.message.reply_text if update.message else update.callback_query.message.reply_text
+    await send("👇 حدد غرض استخدامك من اللابتوب:", reply_markup=purpose_keyboard())
 
+async def about(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await send_with_keyboard(update, ABOUT_TEXT)
+
+async def contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await send_with_keyboard(update, f"📬 تواصل معي:\n{CONTACT_LINK}")
+
+async def donate(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await send_with_keyboard(update, f"❤️ لدعم المشروع:\n{DONATION_LINK}")
+
+async def send_with_keyboard(update, text):
+    if update.message:
+        await update.message.reply_text(text, reply_markup=main_inline_keyboard())
+    elif update.callback_query:
+        await update.callback_query.message.reply_text(text, reply_markup=main_inline_keyboard())
 
 async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -69,44 +83,30 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     cid = query.message.chat_id
     data = query.data
 
+    if data == "start":
+        return await start(update, context)
+    if data == "about":
+        return await about(update, context)
+    if data == "donate":
+        return await donate(update, context)
+    if data == "contact":
+        return await contact(update, context)
+
     if data in purposes:
         user_state[cid] = {"purpose": data}
-        await query.message.reply_text("💰 كم ميزانيتك؟ (بالريال السعودي)", reply_markup=reply_main_menu())
-
+        await query.message.reply_text("💰 كم ميزانيتك؟ (بالريال السعودي)")
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not update.message:
-        return
-
     text = update.message.text.strip()
     cid = update.message.chat_id
 
-    if text in ["/start", "🔁 ابدأ من جديد"]:
-        return await start(update, context)
-    if text in ["/clear", "🧹 مسح المحادثة"]:
-        await clear_messages(context, cid)
-        return await update.message.reply_text("🧹 تم مسح المحادثة.", reply_markup=reply_main_menu())
-    if text in ["/about", "ℹ️ عن التطبيق"]:
-        return await update.message.reply_text(ABOUT_TEXT, reply_markup=reply_main_menu())
-    if text in ["/donate", "💰 دعم المشروع"]:
-        return await update.message.reply_text(f"❤️ لدعم المشروع:\n{DONATION_LINK}", reply_markup=reply_main_menu())
-    if text in ["/contact", "📞 تواصل معي"]:
-        return await update.message.reply_text(f"📬 تواصل معي:\n{CONTACT_LINK}", reply_markup=reply_main_menu())
-
-    if text in purposes:
-        user_state[cid] = {"purpose": text}
-        return await update.message.reply_text("💰 كم ميزانيتك؟", reply_markup=reply_main_menu())
-
     if cid not in user_state or "purpose" not in user_state[cid]:
-        return await update.message.reply_text("❗ اختر الغرض أولًا عبر /start", reply_markup=reply_main_menu())
-
-    arabic_digits = str.maketrans('٠١٢٣٤٥٦٧٨٩', '0123456789')
-    clean_text = re.sub(r'[^\d]', '', text.translate(arabic_digits))
+        return await update.message.reply_text("❗ اختر الغرض أولًا عبر الضغط على (ابدأ من جديد).", reply_markup=main_inline_keyboard())
 
     try:
-        budget = int(clean_text)
+        budget = int(text)
     except ValueError:
-        return await update.message.reply_text("❌ أدخل رقمًا صحيحًا للميزانية.")
+        return await update.message.reply_text("❌ أدخل رقمًا صحيحًا.", reply_markup=main_inline_keyboard())
 
     user_state[cid]["budget"] = budget
     purpose = purposes[user_state[cid]["purpose"]]
@@ -114,51 +114,47 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     results = df[
         (df["Purpose"].str.contains(purpose, case=False)) &
         (df["Average Price (SAR)"] <= budget)
-    ].copy()
+    ].sort_values(by="totalScore", ascending=False)
 
     if results.empty:
-        return await update.message.reply_text("😕 لم نجد لابتوبات بهذه المواصفات.", reply_markup=reply_main_menu())
+        return await update.message.reply_text("😕 لم نجد لابتوبات بهذه المواصفات.", reply_markup=main_inline_keyboard())
 
-    results["adjustedScore"] = results["totalScore"] - ((budget - results["Average Price (SAR)"]) / budget * 0.5)
-    results = results.sort_values(by="adjustedScore", ascending=False)
-
-    await update.message.reply_text(f"✅ تم العثور على {len(results)} لابتوب يناسب استخدامك وميزانيتك.")
-
-    for _, row in results.head(5).iterrows():
+    for _, row in results.iterrows():
         id_str = str(row['id'])
         caption = format_laptop_info(row)
         image_paths = get_images(id_str)
 
         if image_paths:
             try:
-                media = [InputMediaPhoto(open(p, "rb"), caption=caption if i == 0 else None)
-                         for i, p in enumerate(image_paths[:5])]
-                msgs = await update.message.reply_media_group(media)
-                track_messages(cid, *msgs)
+                media = [InputMediaPhoto(open(p, "rb")) for p in image_paths[:5]]
+                await update.message.reply_media_group(media)
+                await update.message.reply_text(caption, parse_mode="HTML")
             except Exception as e:
                 logger.error(f"❌ خطأ في إرسال الصور: {e}")
-                msg = await update.message.reply_text(caption, parse_mode="HTML")
-                track_messages(cid, msg)
+                await update.message.reply_text(caption, parse_mode="HTML")
         else:
-            msg = await update.message.reply_text(caption, parse_mode="HTML")
-            track_messages(cid, msg)
+            await update.message.reply_text(caption, parse_mode="HTML")
 
     pdf_path = generate_pdf(results.head(5))
     with open(pdf_path, "rb") as f:
-        msg = await update.message.reply_document(document=f, filename="Laptop_Comparison.pdf", caption="📄 مقارنة بين أفضل اللابتوبات")
-        track_messages(cid, msg)
-
+        await update.message.reply_document(document=f, filename="Laptop_Comparison.pdf", caption="📄 مقارنة المواصفات بين أفضل اللابتوبات", reply_markup=main_inline_keyboard())
 
 def format_laptop_info(r):
-    return (f"💻 {r['Brand']} {r['Model']}\n"
-            f"💰 السعر: {r['Average Price (SAR)']} ريال\n"
-            f"🧠 المعالج: {r['Processor']}\n"
-            f"🎮 كرت الشاشة: {r['GPU']}\n"
-            f"💾 الرام: {r['RAM']}\n"
-            f"🗃️ التخزين: {r['Storage']}\n"
-            f"📺 الشاشة: {r['Display']}\n"
-            f"🔋 البطارية: {r['Battery Life']} ساعة")
-
+    brand = r['Brand']
+    model = r['Model']
+    price = f"{int(r['Average Price (SAR)']):,} ر.س"
+    return (
+        f"🏷️ <b>الشركة:</b> {brand}\n"
+        f"💻 <b>الموديل:</b> <code>{model}</code>\n\n"
+        f"💰 <b>السعر:</b> {price}\n\n"
+        f"🔧 <b>المواصفات:</b>\n"
+        f"🧠 <b>المعالج:</b> {r['Processor']}\n"
+        f"🎮 <b>كرت الشاشة:</b> {r['GPU']}\n"
+        f"💾 <b>الرام:</b> {r['RAM']}\n"
+        f"🗃️ <b>التخزين:</b> {r['Storage']}\n"
+        f"📺 <b>الشاشة:</b> {r['Display']}\n"
+        f"🔋 <b>البطارية:</b> {r['Battery Life']} ساعة"
+    )
 
 def get_images(laptop_id):
     folder = os.path.join(IMAGES_FOLDER, laptop_id)
@@ -166,26 +162,42 @@ def get_images(laptop_id):
         return []
     return [os.path.join(folder, f) for f in sorted(os.listdir(folder)) if f.lower().endswith((".jpg", ".jpeg", ".png"))]
 
-
 def generate_pdf(results_df):
     temp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
     doc = SimpleDocTemplate(temp.name, pagesize=A4, rightMargin=20, leftMargin=20, topMargin=30, bottomMargin=30)
     elements = []
 
     styles = getSampleStyleSheet()
-    title = Paragraph("📄 Top 5 Recommended Laptops Based on Your Budget", styles['Title'])
+    style_title = styles['Title']
+    style_title.fontName = 'Helvetica-Bold'
+    style_title.fontSize = 14
+
+    title = Paragraph("📄 Top 5 Recommended Laptops Based on Your Budget", style_title)
     elements.append(title)
     elements.append(Spacer(1, 12))
+
+    try:
+        first_row = results_df.iloc[0]
+        purpose = first_row.get("Purpose", "غير معروف")
+        budget = int(first_row.get("Average Price (SAR)", 0))
+        info_text = f"🔍 <b>Purpose:</b> {purpose} | 💰 <b>Budget:</b> {budget:,} SAR"
+    except Exception:
+        info_text = "🔍 لم يتم تحديد الغرض أو الميزانية"
+
+    info_paragraph = Paragraph(info_text, styles['Normal'])
+    elements.append(info_paragraph)
+    elements.append(Spacer(1, 8))
 
     data = [[
         "⭐", "Model", "Price (SAR)", "Processor", "GPU", "RAM",
         "Storage", "Display", "Battery", "Score"
     ]]
 
-    best_score = results_df['adjustedScore'].max()
+    best_score = results_df['totalScore'].max()
 
     for _, r in results_df.iterrows():
-        star = "⭐" if r['adjustedScore'] == best_score else ""
+        is_best = r['totalScore'] == best_score
+        star = "⭐" if is_best else ""
         data.append([
             star,
             f"{r['Brand']} {r['Model']}",
@@ -215,7 +227,7 @@ def generate_pdf(results_df):
     ])
 
     for i, r in enumerate(results_df.iterrows(), start=1):
-        if r[1]['adjustedScore'] == best_score:
+        if r[1]['totalScore'] == best_score:
             style.add('BACKGROUND', (0, i), (-1, i), colors.lightgreen)
 
     table.setStyle(style)
@@ -223,65 +235,26 @@ def generate_pdf(results_df):
     doc.build(elements)
     return temp.name
 
-
-def track_messages(cid, *msgs):
-    if cid not in user_bot_messages:
-        user_bot_messages[cid] = []
-    for m in msgs:
-        if hasattr(m, "message_id"):
-            user_bot_messages[cid].append(m.message_id)
-
-
-async def clear_messages(context, cid):
-    if cid in user_bot_messages:
-        for msg_id in user_bot_messages[cid]:
-            try:
-                await context.bot.delete_message(chat_id=cid, message_id=msg_id)
-            except:
-                continue
-        user_bot_messages[cid] = []
-
-
-async def set_bot_commands(application: Application):
+async def set_bot_commands(application):
     commands = [
         BotCommand("start", "بدء البوت"),
         BotCommand("about", "عن التطبيق"),
         BotCommand("contact", "تواصل معي"),
         BotCommand("donate", "دعم المشروع"),
-        BotCommand("clear", "مسح المحادثة"),
     ]
     await application.bot.set_my_commands(commands)
 
-
-async def on_startup(app: Application):
-    await set_bot_commands(app)
-
-
 def main():
     app = ApplicationBuilder().token(TOKEN).build()
-
     app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("about", about))
+    app.add_handler(CommandHandler("contact", contact))
+    app.add_handler(CommandHandler("donate", donate))
     app.add_handler(CallbackQueryHandler(handle_button))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    app.post_init = lambda app: set_bot_commands(app)
+    print("✅ البوت يعمل الآن...")
+    app.run_polling()
 
-    print("✅ البوت يعمل الآن باستخدام Webhook...")
-
-    async def full_startup(app):
-        await on_startup(app)
-        await register_webhook(app)
-
-    app.post_init = full_startup
-
-    port = int(os.environ.get("PORT", 8080))
-    webhook_url = f"https://laptop-bot-production.up.railway.app/{TOKEN}"
-
-    app.run_webhook(
-        listen="0.0.0.0",
-        port=port,
-        url_path=TOKEN,
-        webhook_url=webhook_url
-    )
-
-
-
-
+if __name__ == "__main__":
+    main()
