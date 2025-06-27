@@ -41,13 +41,10 @@ df = df.dropna(subset=["Average Price (SAR)"])
 
 def main_inline_keyboard():
     return InlineKeyboardMarkup([
-        [InlineKeyboardButton("🔁 ابدأ من جديد", callback_data="start")],
-        [
-            InlineKeyboardButton(" 💵 دعم المشروع", callback_data="donate"),
-            InlineKeyboardButton("ⓘ عن توبلاب", callback_data="about"),
-            InlineKeyboardButton("💌 تواصل معي", callback_data="contact")
-        ]
+        [InlineKeyboardButton("🔁 ابدأ من جديد", callback_data="start"), InlineKeyboardButton("ⓘ عن توبلاب", callback_data="about")],
+        [InlineKeyboardButton("دعم المشروع 💵", callback_data="donate"), InlineKeyboardButton("💌 تواصل معي", callback_data="contact")]
     ])
+
 
 def purpose_keyboard():
     return InlineKeyboardMarkup([[InlineKeyboardButton(k, callback_data=k)] for k in purposes])
