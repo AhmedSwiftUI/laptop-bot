@@ -20,7 +20,7 @@ TOKEN = os.getenv("BOT_TOKEN")
 CSV_PATH = "Cleaned_Laptop_Data_Final_Version.csv"
 IMAGES_FOLDER = "Toplaps_bot_images"
 
-DONATION_LINK = "https://buymeacoffee.com/your_link"
+DONATION_LINK = "coff.ee/toplap"
 CONTACT_LINK = "https://t.me/Ahmed0ksa"
 ABOUT_TEXT = "💡 هذا التطبيق يساعدك في اختيار أفضل لابتوب حسب ميزانيتك واستخدامك.\nتم تطويره بواسطة أحمد ❤️"
 
