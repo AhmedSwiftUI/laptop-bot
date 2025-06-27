@@ -43,7 +43,7 @@ def main_inline_keyboard():
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("🔁 ابدأ من جديد", callback_data="start")],
         [
-            InlineKeyboardButton("💰 دعم المشروع", callback_data="donate"),
+            InlineKeyboardButton(" 💵 دعم المشروع", callback_data="donate"),
             InlineKeyboardButton("ⓘ عن توبلاب", callback_data="about"),
             InlineKeyboardButton("💌 تواصل معي", callback_data="contact")
         ]
@@ -113,7 +113,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ].sort_values(by="totalScore", ascending=False)
 
     if results.empty:
-        return await update.message.reply_text("😕 لم نجد لابتوبات بهذه المواصفات.", reply_markup=main_inline_keyboard())
+        return await update.message.reply_text(" لم نجد لابتوبات بهذه المواصفات.", reply_markup=main_inline_keyboard())
 
     for _, row in results.iterrows():
         id_str = str(row['id'])
