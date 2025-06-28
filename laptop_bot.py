@@ -21,7 +21,7 @@ TOKEN = os.getenv("BOT_TOKEN")
 CSV_PATH = "Cleaned_Laptop_Data_Final_Version.csv"
 IMAGES_FOLDER = "Toplaps_bot_images"
 USERS_FILE = "users.json"
-ADMIN_ID = 890094476  # 👈 ضع رقم حسابك هنا
+STATS_FILE = "/Users/ahmedalharbi/Desktop/LaptopBotProject/stats.json"
 
 DONATION_LINK = "coff.ee/toplap"
 CONTACT_LINK = "https://t.me/Ahmed0ksa"
@@ -53,9 +53,14 @@ def save_users(users):
     with open(USERS_FILE, "w") as f:
         json.dump(list(users), f)
 
+# حفظ عدد المستخدمين في stats.json
+def save_user_count_log():
+    os.makedirs(os.path.dirname(STATS_FILE), exist_ok=True)
+    with open(STATS_FILE, "w") as f:
+        json.dump({"count": len(users)}, f)
+
 users = load_users()
 
-# الواجهات
 def main_inline_keyboard():
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("🔁 ابدأ من جديد", callback_data="start")],
@@ -70,9 +75,12 @@ def purpose_keyboard():
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     cid = update.effective_chat.id
     user_state.pop(cid, None)
+
     if cid not in users:
         users.add(cid)
         save_users(users)
+        save_user_count_log()
+
     send = update.message.reply_text if update.message else update.callback_query.message.reply_text
     await send("👇 حدد غرض استخدامك من اللابتوب:", reply_markup=purpose_keyboard())
 
@@ -237,19 +245,12 @@ def generate_pdf(results_df):
     doc.build(elements)
     return temp.name
 
-# أمر عرض عدد المستخدمين
-async def users_count(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if update.effective_user.id != ADMIN_ID:
-        return await update.message.reply_text("❌ هذا الأمر مخصص للمطور فقط.")
-    await update.message.reply_text(f"📊 عدد المستخدمين المسجلين: {len(users)}")
-
 async def set_bot_commands(application):
     commands = [
         BotCommand("start", "بدء البوت"),
         BotCommand("about", "عن التطبيق"),
         BotCommand("contact", "تواصل معي"),
         BotCommand("donate", "دعم المشروع"),
-        BotCommand("users_count", "عدد المستخدمين (خاص بالمطور)")
     ]
     await application.bot.set_my_commands(commands)
 
@@ -260,7 +261,6 @@ def main():
     app.add_handler(CommandHandler("about", about))
     app.add_handler(CommandHandler("contact", contact))
     app.add_handler(CommandHandler("donate", donate))
-    app.add_handler(CommandHandler("users_count", users_count))
     app.add_handler(CallbackQueryHandler(handle_button))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
