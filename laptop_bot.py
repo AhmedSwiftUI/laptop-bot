@@ -21,7 +21,7 @@ TOKEN = os.getenv("BOT_TOKEN")
 CSV_PATH = "Cleaned_Laptop_Data_Final_Version.csv"
 IMAGES_FOLDER = "Toplaps_bot_images"
 USERS_FILE = "users.json"
-STATS_FILE = "/Users/ahmedalharbi/Desktop/LaptopBotProject/stats.json"
+STATS_FILE = os.path.join(os.getcwd(), "stats.json")
 
 DONATION_LINK = "coff.ee/toplap"
 CONTACT_LINK = "https://t.me/Ahmed0ksa"
