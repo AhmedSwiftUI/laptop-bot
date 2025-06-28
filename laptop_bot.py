@@ -22,6 +22,7 @@ CSV_PATH = "Cleaned_Laptop_Data_Final_Version.csv"
 IMAGES_FOLDER = "Toplaps_bot_images"
 USERS_FILE = "users.json"
 STATS_FILE = os.path.join(os.getcwd(), "stats.json")
+ADMIN_ID = 890094476
 
 DONATION_LINK = "coff.ee/toplap"
 CONTACT_LINK = "https://t.me/Ahmed0ksa"
@@ -42,7 +43,7 @@ df = pd.read_csv(CSV_PATH)
 df["Average Price (SAR)"] = pd.to_numeric(df["Average Price (SAR)"], errors="coerce")
 df = df.dropna(subset=["Average Price (SAR)"])
 
-# تحميل المستخدمين من الملف
+# المستخدمين
 def load_users():
     if os.path.exists(USERS_FILE):
         with open(USERS_FILE, "r") as f:
@@ -53,7 +54,6 @@ def save_users(users):
     with open(USERS_FILE, "w") as f:
         json.dump(list(users), f)
 
-# حفظ عدد المستخدمين في stats.json
 def save_user_count_log():
     os.makedirs(os.path.dirname(STATS_FILE), exist_ok=True)
     with open(STATS_FILE, "w") as f:
@@ -61,6 +61,7 @@ def save_user_count_log():
 
 users = load_users()
 
+# واجهة رئيسية
 def main_inline_keyboard():
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("🔁 ابدأ من جديد", callback_data="start")],
@@ -87,10 +88,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def about(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = (
         "💡 توبلاب هو مساعد ذكي يساعدك تختار أفضل لابتوب يناسب ميزانيتك واستخدامك، سواء كنت طالب، مصمم، مبرمج أو لاعب.\n\n"
-        "🚀 الترشيحات مبنية على تحليل بيانات محدثة من مواقع تقنية موثوقة، نتائج اختبارات الأداء (Benchmark)، تقييمات المستخدمين، وخبرة تقنية.\n\n"
-        "🎯 هدف توبلاب إنك توصل لأفضل خيار بدون ما تضيع وقتك في المقارنات ويوفر مالك بالاختيار المناسب لك.\n\n"
+        "🚀 الترشيحات مبنية على تحليل بيانات محدثة من مواقع تقنية موثوقة، نتائج اختبارات الأداء، تقييمات المستخدمين، وخبرة تقنية.\n\n"
         "✅ كل لابتوب يتم اختياره بناءً على جودة المواصفات، الأداء مقابل السعر، وتقييم المنتج بشكل عام.\n\n"
-        "💰 الأسعار المعروضة هي تقريبا متوسط السعر بسبب اختلاف الأسعار بين المتاجر، ويتم تحديث متوسط السعر أسبوعيًا."
+        "💰 الأسعار المعروضة هي تقريبية."
     )
     await send_with_keyboard(update, text)
 
@@ -145,7 +145,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ].sort_values(by="totalScore", ascending=False)
 
     if results.empty:
-        return await update.message.reply_text(" لم نجد لابتوبات بهذه المواصفات.", reply_markup=main_inline_keyboard())
+        return await update.message.reply_text("لم نجد لابتوبات بهذه المواصفات.", reply_markup=main_inline_keyboard())
 
     for _, row in results.iterrows():
         id_str = str(row['id'])
@@ -165,17 +165,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     pdf_path = generate_pdf(results.head(5))
     with open(pdf_path, "rb") as f:
-        await update.message.reply_document(document=f, filename="Laptop_Comparison.pdf", caption="📄 مقارنة المواصفات بين أفضل اللابتوبات", reply_markup=main_inline_keyboard())
+        await update.message.reply_document(document=f, filename="Laptop_Comparison.pdf", caption="📄 مقارنة المواصفات", reply_markup=main_inline_keyboard())
 
 def format_laptop_info(r):
-    brand = r['Brand']
-    model = r['Model']
     price = f"{int(r['Average Price (SAR)']):,} ر.س"
     return (
-        f"🏷️ <b>الشركة:</b> {brand}\n"
-        f"💻 <b>الموديل:</b> <code>{model}</code>\n\n"
-        f"💰 <b>السعر:</b> {price}\n\n"
-        f"🔧 <b>المواصفات:</b>\n"
+        f"🏷️ <b>الشركة:</b> {r['Brand']}\n"
+        f"💻 <b>الموديل:</b> <code>{r['Model']}</code>\n"
+        f"💰 <b>السعر:</b> {price}\n"
         f"🧠 <b>المعالج:</b> {r['Processor']}\n"
         f"🎮 <b>كرت الشاشة:</b> {r['GPU']}\n"
         f"💾 <b>الرام:</b> {r['RAM']}\n"
@@ -192,67 +189,52 @@ def get_images(laptop_id):
 
 def generate_pdf(results_df):
     temp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
-    doc = SimpleDocTemplate(temp.name, pagesize=A4, rightMargin=20, leftMargin=20, topMargin=30, bottomMargin=30)
+    doc = SimpleDocTemplate(temp.name, pagesize=A4)
     elements = []
-
     styles = getSampleStyleSheet()
-    title = Paragraph("📄 Top 5 Recommended Laptops Based on Your Budget", styles['Title'])
+
+    title = Paragraph("📄 Top 5 Recommended Laptops", styles['Title'])
     elements.append(title)
     elements.append(Spacer(1, 12))
 
-    data = [[
-        "⭐", "Model", "Price (SAR)", "Processor", "GPU", "RAM",
-        "Storage", "Display", "Battery", "Score"
-    ]]
-
-    best_score = results_df['totalScore'].max()
+    data = [["⭐", "Model", "Price", "Processor", "GPU", "RAM", "Storage", "Display", "Battery", "Score"]]
+    best_score = results_df["totalScore"].max()
 
     for _, r in results_df.iterrows():
-        is_best = r['totalScore'] == best_score
-        star = "⭐" if is_best else ""
+        star = "⭐" if r["totalScore"] == best_score else ""
         data.append([
-            star,
-            f"{r['Brand']} {r['Model']}",
-            str(r['Average Price (SAR)']),
-            r['Processor'],
-            r['GPU'],
-            r['RAM'],
-            r['Storage'],
-            r['Display'],
-            f"{r['Battery Life']}h",
-            r['totalScore']
+            star, f"{r['Brand']} {r['Model']}", str(r['Average Price (SAR)']),
+            r['Processor'], r['GPU'], r['RAM'], r['Storage'], r['Display'],
+            f"{r['Battery Life']}h", r['totalScore']
         ])
 
-    table = Table(data, repeatRows=1, hAlign='LEFT', colWidths=[
-        10*mm, 50*mm, 25*mm, 40*mm, 35*mm, 20*mm, 30*mm, 35*mm, 20*mm, 20*mm
-    ])
-
-    style = TableStyle([
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 0), (-1, -1), 8),
+    table = Table(data, repeatRows=1)
+    table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.lightblue),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('GRID', (0, 0), (-1, -1), 0.25, colors.grey),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.lightgrey])
-    ])
-
-    for i, r in enumerate(results_df.iterrows(), start=1):
-        if r[1]['totalScore'] == best_score:
-            style.add('BACKGROUND', (0, i), (-1, i), colors.lightgreen)
-
-    table.setStyle(style)
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTSIZE', (0, 0), (-1, -1), 8),
+    ]))
     elements.append(table)
     doc.build(elements)
     return temp.name
 
-async def set_bot_commands(application):
+async def get_stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.effective_user.id != ADMIN_ID:
+        return await update.message.reply_text("❌ هذا الأمر خاص بالمطور فقط.")
+    if not os.path.exists(STATS_FILE):
+        return await update.message.reply_text("❌ ملف الإحصائيات غير موجود.")
+    await update.message.reply_document(document=open(STATS_FILE, "rb"), filename="stats.json", caption="📊 تقرير الإحصائيات")
+
+async def set_bot_commands(app):
     commands = [
         BotCommand("start", "بدء البوت"),
         BotCommand("about", "عن التطبيق"),
         BotCommand("contact", "تواصل معي"),
         BotCommand("donate", "دعم المشروع"),
+        BotCommand("get_stats", "عرض الإحصائيات (للمطور)")
     ]
-    await application.bot.set_my_commands(commands)
+    await app.bot.set_my_commands(commands)
 
 def main():
     app = ApplicationBuilder().token(TOKEN).build()
@@ -261,6 +243,7 @@ def main():
     app.add_handler(CommandHandler("about", about))
     app.add_handler(CommandHandler("contact", contact))
     app.add_handler(CommandHandler("donate", donate))
+    app.add_handler(CommandHandler("get_stats", get_stats))
     app.add_handler(CallbackQueryHandler(handle_button))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
