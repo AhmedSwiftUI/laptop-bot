@@ -231,10 +231,11 @@ async def set_bot_commands(app):
         BotCommand("start", "بدء البوت"),
         BotCommand("about", "عن التطبيق"),
         BotCommand("contact", "تواصل معي"),
-        BotCommand("donate", "دعم المشروع"),
-        BotCommand("get_stats", "عرض الإحصائيات (للمطور)")
+        BotCommand("donate", "دعم المشروع")
+        # لا تضيف get_stats هنا
     ]
     await app.bot.set_my_commands(commands)
+
 
 def main():
     app = ApplicationBuilder().token(TOKEN).build()
