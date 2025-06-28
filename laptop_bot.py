@@ -1,4 +1,5 @@
 import os
+import json
 import logging
 import pandas as pd
 import tempfile
@@ -19,10 +20,11 @@ from reportlab.lib.units import mm
 TOKEN = os.getenv("BOT_TOKEN")
 CSV_PATH = "Cleaned_Laptop_Data_Final_Version.csv"
 IMAGES_FOLDER = "Toplaps_bot_images"
+USERS_FILE = "users.json"
+ADMIN_ID = 890094476  # 👈 ضع رقم حسابك هنا
 
 DONATION_LINK = "coff.ee/toplap"
 CONTACT_LINK = "https://t.me/Ahmed0ksa"
-ABOUT_TEXT = "💡 هذا التطبيق يساعدك في اختيار أفضل لابتوب حسب ميزانيتك واستخدامك.\nتم تطويره بواسطة أحمد ❤️"
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -35,10 +37,25 @@ purposes = {
     "📚 الدراسة": "Studying"
 }
 
+# تحميل البيانات
 df = pd.read_csv(CSV_PATH)
 df["Average Price (SAR)"] = pd.to_numeric(df["Average Price (SAR)"], errors="coerce")
 df = df.dropna(subset=["Average Price (SAR)"])
 
+# تحميل المستخدمين من الملف
+def load_users():
+    if os.path.exists(USERS_FILE):
+        with open(USERS_FILE, "r") as f:
+            return set(json.load(f))
+    return set()
+
+def save_users(users):
+    with open(USERS_FILE, "w") as f:
+        json.dump(list(users), f)
+
+users = load_users()
+
+# الواجهات
 def main_inline_keyboard():
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("🔁 ابدأ من جديد", callback_data="start")],
@@ -47,31 +64,27 @@ def main_inline_keyboard():
         [InlineKeyboardButton("❤️ تواصل معي", callback_data="contact")]
     ])
 
-
-
-
-
 def purpose_keyboard():
     return InlineKeyboardMarkup([[InlineKeyboardButton(k, callback_data=k)] for k in purposes])
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     cid = update.effective_chat.id
     user_state.pop(cid, None)
+    if cid not in users:
+        users.add(cid)
+        save_users(users)
     send = update.message.reply_text if update.message else update.callback_query.message.reply_text
     await send("👇 حدد غرض استخدامك من اللابتوب:", reply_markup=purpose_keyboard())
 
 async def about(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = (
         "💡 توبلاب هو مساعد ذكي يساعدك تختار أفضل لابتوب يناسب ميزانيتك واستخدامك، سواء كنت طالب، مصمم، مبرمج أو لاعب.\n\n"
-        "📊 الترشيحات مبنية على تحليل بيانات محدثة من مواقع تقنية موثوقة، نتائج اختبارات الأداء (Benchmark)، تقييمات المستخدمين، وخبرة تقنية.\n\n"
+        "🚀 الترشيحات مبنية على تحليل بيانات محدثة من مواقع تقنية موثوقة، نتائج اختبارات الأداء (Benchmark)، تقييمات المستخدمين، وخبرة تقنية.\n\n"
         "🎯 هدف توبلاب إنك توصل لأفضل خيار بدون ما تضيع وقتك في المقارنات ويوفر مالك بالاختيار المناسب لك.\n\n"
         "✅ كل لابتوب يتم اختياره بناءً على جودة المواصفات، الأداء مقابل السعر، وتقييم المنتج بشكل عام.\n\n"
         "💰 الأسعار المعروضة هي تقريبا متوسط السعر بسبب اختلاف الأسعار بين المتاجر، ويتم تحديث متوسط السعر أسبوعيًا."
     )
     await send_with_keyboard(update, text)
-
-
-
 
 async def contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await send_with_keyboard(update, f"📬 تواصل معي:\n{CONTACT_LINK}")
@@ -111,11 +124,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if cid not in user_state or "purpose" not in user_state[cid]:
         return await update.message.reply_text("❗ اختر الغرض أولًا عبر الضغط على (ابدأ من جديد).", reply_markup=main_inline_keyboard())
 
-    try:
-        budget = int(text)
-    except ValueError:
+    if not text.isdigit():
         return await update.message.reply_text("❌ أدخل رقمًا صحيحًا.", reply_markup=main_inline_keyboard())
 
+    budget = int(text)
     user_state[cid]["budget"] = budget
     purpose = purposes[user_state[cid]["purpose"]]
 
@@ -176,25 +188,9 @@ def generate_pdf(results_df):
     elements = []
 
     styles = getSampleStyleSheet()
-    style_title = styles['Title']
-    style_title.fontName = 'Helvetica-Bold'
-    style_title.fontSize = 14
-
-    title = Paragraph("📄 Top 5 Recommended Laptops Based on Your Budget", style_title)
+    title = Paragraph("📄 Top 5 Recommended Laptops Based on Your Budget", styles['Title'])
     elements.append(title)
     elements.append(Spacer(1, 12))
-
-    try:
-        first_row = results_df.iloc[0]
-        purpose = first_row.get("Purpose", "غير معروف")
-        budget = int(first_row.get("Average Price (SAR)", 0))
-        info_text = f"🔍 <b>Purpose:</b> {purpose} | 💰 <b>Budget:</b> {budget:,} SAR"
-    except Exception:
-        info_text = "🔍 لم يتم تحديد الغرض أو الميزانية"
-
-    info_paragraph = Paragraph(info_text, styles['Normal'])
-    elements.append(info_paragraph)
-    elements.append(Spacer(1, 8))
 
     data = [[
         "⭐", "Model", "Price (SAR)", "Processor", "GPU", "RAM",
@@ -227,9 +223,7 @@ def generate_pdf(results_df):
         ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
         ('FONTSIZE', (0, 0), (-1, -1), 8),
         ('BACKGROUND', (0, 0), (-1, 0), colors.lightblue),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('GRID', (0, 0), (-1, -1), 0.25, colors.grey),
         ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.lightgrey])
     ])
@@ -243,12 +237,19 @@ def generate_pdf(results_df):
     doc.build(elements)
     return temp.name
 
+# أمر عرض عدد المستخدمين
+async def users_count(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.effective_user.id != ADMIN_ID:
+        return await update.message.reply_text("❌ هذا الأمر مخصص للمطور فقط.")
+    await update.message.reply_text(f"📊 عدد المستخدمين المسجلين: {len(users)}")
+
 async def set_bot_commands(application):
     commands = [
         BotCommand("start", "بدء البوت"),
         BotCommand("about", "عن التطبيق"),
         BotCommand("contact", "تواصل معي"),
         BotCommand("donate", "دعم المشروع"),
+        BotCommand("users_count", "عدد المستخدمين (خاص بالمطور)")
     ]
     await application.bot.set_my_commands(commands)
 
@@ -259,6 +260,7 @@ def main():
     app.add_handler(CommandHandler("about", about))
     app.add_handler(CommandHandler("contact", contact))
     app.add_handler(CommandHandler("donate", donate))
+    app.add_handler(CommandHandler("users_count", users_count))
     app.add_handler(CallbackQueryHandler(handle_button))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
